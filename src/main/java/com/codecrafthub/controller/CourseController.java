@@ -1,3 +1,4 @@
+
 package com.codecrafthub.controller;
 
 import com.codecrafthub.model.Course;
@@ -13,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api")
 public class CourseController {
@@ -62,7 +64,8 @@ public class CourseController {
     }
 
     @PostMapping("/courses")
-    public ResponseEntity<Map<String, Object>> addCourse(@RequestBody(required = false) Course course) {
+    public ResponseEntity<Map<String, Object>> addCourse(
+            @RequestBody(required = false) Course course) {
         if (course == null) {
             return error("Request body is required", HttpStatus.BAD_REQUEST);
         }
@@ -75,7 +78,8 @@ public class CourseController {
         try {
             List<Course> courses = courseService.loadCourses();
             course.setId(courseService.getNextId(courses));
-            course.setCreatedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            course.setCreatedAt(
+                    LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             courses.add(course);
             courseService.saveCourses(courses);
 
@@ -110,14 +114,19 @@ public class CourseController {
                     .findFirst();
 
             if (match.isEmpty()) {
-                return error("Course with ID " + id + " not found", HttpStatus.NOT_FOUND);
+                return error("Course with ID " + id + " not found",
+                        HttpStatus.NOT_FOUND);
             }
 
             Course course = match.get();
-            if (updatedCourse.getName() != null) course.setName(updatedCourse.getName());
-            if (updatedCourse.getDescription() != null) course.setDescription(updatedCourse.getDescription());
-            if (updatedCourse.getTargetDate() != null) course.setTargetDate(updatedCourse.getTargetDate());
-            if (updatedCourse.getStatus() != null) course.setStatus(updatedCourse.getStatus());
+            if (updatedCourse.getName() != null)
+                course.setName(updatedCourse.getName());
+            if (updatedCourse.getDescription() != null)
+                course.setDescription(updatedCourse.getDescription());
+            if (updatedCourse.getTargetDate() != null)
+                course.setTargetDate(updatedCourse.getTargetDate());
+            if (updatedCourse.getStatus() != null)
+                course.setStatus(updatedCourse.getStatus());
 
             courseService.saveCourses(courses);
 
@@ -133,7 +142,8 @@ public class CourseController {
     }
 
     @DeleteMapping("/courses/{id}")
-    public ResponseEntity<Map<String, Object>> deleteCourse(@PathVariable Integer id) {
+    public ResponseEntity<Map<String, Object>> deleteCourse(
+            @PathVariable Integer id) {
         try {
             List<Course> courses = courseService.loadCourses();
             Optional<Course> match = courses.stream()
@@ -141,7 +151,8 @@ public class CourseController {
                     .findFirst();
 
             if (match.isEmpty()) {
-                return error("Course with ID " + id + " not found", HttpStatus.NOT_FOUND);
+                return error("Course with ID " + id + " not found",
+                        HttpStatus.NOT_FOUND);
             }
 
             Course deleted = match.get();
@@ -160,17 +171,22 @@ public class CourseController {
     }
 
     private String validateRequiredCourse(Course course) {
-        if (isBlank(course.getName())) return "Missing required field: name";
-        if (isBlank(course.getDescription())) return "Missing required field: description";
-        if (isBlank(course.getTargetDate())) return "Missing required field: target_date";
-        if (isBlank(course.getStatus())) return "Missing required field: status";
+        if (isBlank(course.getName()))
+            return "Missing required field: name";
+        if (isBlank(course.getDescription()))
+            return "Missing required field: description";
+        if (isBlank(course.getTargetDate()))
+            return "Missing required field: target_date";
+        if (isBlank(course.getStatus()))
+            return "Missing required field: status";
         return validateOptionalCourse(course);
     }
 
     private String validateOptionalCourse(Course course) {
         if (course.getName() != null && course.getName().trim().isEmpty())
             return "Field name cannot be blank";
-        if (course.getDescription() != null && course.getDescription().trim().isEmpty())
+        if (course.getDescription() != null
+                && course.getDescription().trim().isEmpty())
             return "Field description cannot be blank";
 
         if (course.getTargetDate() != null) {
@@ -181,9 +197,12 @@ public class CourseController {
             }
         }
 
-        if (course.getStatus() != null && !VALID_STATUSES.contains(course.getStatus())) {
-            return "Status must be one of: " + String.join(", ", VALID_STATUSES);
+        if (course.getStatus() != null
+                && !VALID_STATUSES.contains(course.getStatus())) {
+            return "Status must be one of: "
+                    + String.join(", ", VALID_STATUSES);
         }
+
         return null;
     }
 
@@ -191,7 +210,8 @@ public class CourseController {
         return value == null || value.trim().isEmpty();
     }
 
-    private ResponseEntity<Map<String, Object>> error(String message, HttpStatus status) {
+    private ResponseEntity<Map<String, Object>> error(
+            String message, HttpStatus status) {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("success", false);
         response.put("error", message);
@@ -199,6 +219,8 @@ public class CourseController {
     }
 
     private String safeMessage(Exception e) {
-        return e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage();
+        return e.getMessage() == null
+                ? e.getClass().getSimpleName()
+                : e.getMessage();
     }
 }
